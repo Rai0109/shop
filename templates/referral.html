@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Giới thiệu bạn bè - Xelloxx Shop</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh}
+.navbar{background:#13131a;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e1e2e;position:sticky;top:0;z-index:100}
+.navbar a{color:#e0e0e0;text-decoration:none;font-weight:600;font-size:1.2rem}
+.navbar a span{color:#7c3aed}
+.nav-links{display:flex;gap:16px;align-items:center}
+.nav-links a{color:#a0a0b0;text-decoration:none;padding:8px 12px;border-radius:8px;transition:.2s}
+.nav-links a:hover{background:#1e1e2e;color:#e0e0e0}
+.btn-primary{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff!important;padding:8px 18px;border-radius:8px}
+.container{max-width:900px;margin:0 auto;padding:32px 16px}
+.hero{background:linear-gradient(135deg,#7c3aed20,#4f46e520);border:1px solid #7c3aed30;border-radius:16px;padding:40px;text-align:center;margin-bottom:32px}
+.hero h1{font-size:2.5rem;margin-bottom:12px}
+.hero h1 span{background:linear-gradient(135deg,#a78bfa,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:#a0a0b0;font-size:1.1rem;max-width:500px;margin:0 auto}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:#13131a;border:1px solid #1e1e2e;border-radius:12px;padding:24px;text-align:center}
+.stat-card .num{font-size:2rem;font-weight:700;color:#a78bfa}
+.stat-card .lbl{color:#666;font-size:.9rem;margin-top:4px}
+.card{background:#13131a;border:1px solid #1e1e2e;border-radius:12px;padding:24px;margin-bottom:24px}
+.card h2{margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ref-code-box{background:#0a0a0f;border:2px dashed #7c3aed40;border-radius:10px;padding:20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.ref-code{font-size:1.8rem;font-weight:700;color:#a78bfa;letter-spacing:3px;font-family:monospace}
+.btn-copy{background:#7c3aed;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;transition:.2s;font-size:.9rem}
+.btn-copy:hover{background:#6d28d9}
+.link-box{display:flex;gap:8px;align-items:center}
+.link-box input{flex:1;background:#0a0a0f;border:1px solid #1e1e2e;color:#a0a0b0;padding:10px 14px;border-radius:8px;font-size:.85rem}
+.how-it-works{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:16px}
+.step{text-align:center;padding:20px}
+.step-icon{width:60px;height:60px;background:linear-gradient(135deg,#7c3aed20,#4f46e520);border:1px solid #7c3aed30;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.5rem}
+.step p{color:#a0a0b0;font-size:.9rem;margin-top:6px}
+.reward-table{width:100%;border-collapse:collapse}
+.reward-table th,.reward-table td{padding:12px 16px;text-align:left;border-bottom:1px solid #1e1e2e;font-size:.9rem}
+.reward-table th{color:#666;font-weight:500}
+.badge{padding:3px 10px;border-radius:6px;font-size:.8rem;font-weight:500}
+.badge.register{background:#10b98120;color:#10b981}
+.badge.topup{background:#7c3aed20;color:#a78bfa}
+.empty{text-align:center;padding:40px;color:#444}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/"><span>X</span>elloxx Shop</a>
+  <div class="nav-links">
+    <a href="/">Trang chủ</a>
+    <a href="/orders">Đơn hàng</a>
+    <a href="/topup" class="btn-primary"><i class="fas fa-wallet"></i> Nạp xu</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="hero">
+    <h1>🎁 <span>Giới thiệu</span> bạn bè</h1>
+    <p>Chia sẻ mã của bạn và nhận xu thưởng mỗi khi có người dùng mới đăng ký và nạp tiền!</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="num" id="total-referred">--</div><div class="lbl">Người đã giới thiệu</div></div>
+    <div class="stat-card"><div class="num" id="total-earned">--</div><div class="lbl">Xu đã nhận</div></div>
+    <div class="stat-card"><div class="num" id="reg-reward">--</div><div class="lbl">Xu/đăng ký mới</div></div>
+    <div class="stat-card"><div class="num" id="topup-bonus">--</div><div class="lbl">% bonus mỗi nạp tiền</div></div>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-code" style="color:#7c3aed"></i> Mã giới thiệu của bạn</h2>
+    <div class="ref-code-box">
+      <div class="ref-code" id="ref-code">Loading...</div>
+      <button class="btn-copy" onclick="copyCode()"><i class="fas fa-copy"></i> Copy mã</button>
+    </div>
+    <div class="link-box">
+      <input id="ref-link" readonly value="">
+      <button class="btn-copy" onclick="copyLink()"><i class="fas fa-link"></i> Copy link</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-question-circle" style="color:#7c3aed"></i> Cách hoạt động</h2>
+    <div class="how-it-works">
+      <div class="step"><div class="step-icon">📤</div><strong>Chia sẻ link</strong><p>Gửi link hoặc mã giới thiệu cho bạn bè</p></div>
+      <div class="step"><div class="step-icon">👤</div><strong>Bạn bè đăng ký</strong><p>Họ dùng mã của bạn khi tạo tài khoản → Bạn nhận xu ngay!</p></div>
+      <div class="step"><div class="step-icon">💰</div><strong>Nhận thưởng liên tục</strong><p>Mỗi lần họ nạp tiền, bạn nhận thêm % bonus tự động</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-history" style="color:#7c3aed"></i> Lịch sử nhận thưởng</h2>
+    <div id="rewards-list"><div class="empty"><i class="fas fa-gift" style="font-size:2rem;margin-bottom:8px;display:block"></i>Chưa có lịch sử</div></div>
+  </div>
+</div>
+<script>
+async function loadReferral(){
+  const r=await fetch('/api/referral/info');
+  const d=await r.json();
+  if(!d.ok){location.href='/login';return;}
+  document.getElementById('ref-code').textContent=d.referral_code;
+  document.getElementById('ref-link').value=d.referral_link;
+  document.getElementById('total-referred').textContent=d.total_referred;
+  document.getElementById('total-earned').textContent=(d.total_earned||0).toLocaleString()+' xu';
+  document.getElementById('reg-reward').textContent=(d.register_reward||0).toLocaleString();
+  document.getElementById('topup-bonus').textContent=(d.topup_bonus_pct||0)+'%';
+  if(d.rewards&&d.rewards.length){
+    document.getElementById('rewards-list').innerHTML=`<table class="reward-table">
+      <tr><th>Người được giới thiệu</th><th>Loại</th><th>Xu nhận</th><th>Thời gian</th></tr>
+      ${[...d.rewards].reverse().map(r=>`<tr>
+        <td><i class="fas fa-user" style="color:#7c3aed;margin-right:6px"></i>${r.referred}</td>
+        <td><span class="badge ${r.type=='register_bonus'?'register':'topup'}">${r.type=='register_bonus'?'Đăng ký':'Nạp tiền'}</span></td>
+        <td style="color:#10b981;font-weight:600">+${r.amount.toLocaleString()} xu</td>
+        <td style="color:#666">${r.created_at}</td>
+      </tr>`).join('')}</table>`;
+  }
+}
+
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('ref-code').textContent);
+  showCopied(event.target);
+}
+function copyLink(){
+  navigator.clipboard.writeText(document.getElementById('ref-link').value);
+  showCopied(event.target);
+}
+function showCopied(btn){
+  const orig=btn.innerHTML; btn.innerHTML='<i class="fas fa-check"></i> Đã copy!';
+  setTimeout(()=>btn.innerHTML=orig,2000);
+}
+
+loadReferral();
+</script>
+</body></html>

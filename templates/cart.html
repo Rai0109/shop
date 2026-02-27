@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Giỏ hàng - Xelloxx Shop</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh}
+.navbar{background:#13131a;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e1e2e;position:sticky;top:0;z-index:100}
+.navbar a{color:#e0e0e0;text-decoration:none;font-weight:600;font-size:1.2rem}
+.navbar a span{color:#7c3aed}
+.nav-links{display:flex;gap:16px;align-items:center}
+.nav-links a{color:#a0a0b0;text-decoration:none;padding:8px 12px;border-radius:8px;transition:.2s}
+.nav-links a:hover{background:#1e1e2e;color:#e0e0e0}
+.nav-links .btn-primary{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:8px 18px;border-radius:8px}
+.container{max-width:900px;margin:0 auto;padding:32px 16px}
+h1{font-size:1.8rem;margin-bottom:24px}
+h1 span{color:#7c3aed}
+.cart-empty{text-align:center;padding:80px 20px}
+.cart-empty i{font-size:4rem;color:#333;margin-bottom:16px}
+.cart-empty p{color:#666;margin-bottom:24px}
+.cart-item{background:#13131a;border:1px solid #1e1e2e;border-radius:12px;padding:20px;margin-bottom:16px;display:flex;gap:16px;align-items:center}
+.cart-item img{width:80px;height:80px;border-radius:8px;object-fit:cover;background:#1e1e2e}
+.cart-item-info{flex:1}
+.cart-item-name{font-weight:600;font-size:1rem;margin-bottom:4px}
+.cart-item-cat{color:#7c3aed;font-size:.85rem;margin-bottom:8px}
+.cart-item-price{font-weight:700;color:#a78bfa;font-size:1.1rem}
+.original-price{text-decoration:line-through;color:#666;font-size:.9rem;margin-left:8px}
+.btn-remove{background:none;border:1px solid #333;color:#ff4444;padding:8px 12px;border-radius:8px;cursor:pointer;transition:.2s}
+.btn-remove:hover{background:#ff444420;border-color:#ff4444}
+.cart-summary{background:#13131a;border:1px solid #1e1e2e;border-radius:12px;padding:24px;margin-top:24px}
+.summary-row{display:flex;justify-content:space-between;margin-bottom:12px;color:#a0a0b0}
+.summary-row.total{color:#e0e0e0;font-weight:700;font-size:1.2rem;border-top:1px solid #1e1e2e;padding-top:12px;margin-top:8px}
+.coupon-row{display:flex;gap:8px;margin-bottom:20px}
+.coupon-row input{flex:1;background:#0a0a0f;border:1px solid #1e1e2e;color:#e0e0e0;padding:10px 14px;border-radius:8px;font-size:.9rem}
+.coupon-row input:focus{outline:none;border-color:#7c3aed}
+.btn-coupon{background:#1e1e2e;border:none;color:#a78bfa;padding:10px 16px;border-radius:8px;cursor:pointer;transition:.2s;white-space:nowrap}
+.btn-coupon:hover{background:#7c3aed;color:#fff}
+.btn-checkout{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;padding:14px 28px;border-radius:10px;cursor:pointer;font-size:1rem;font-weight:600;width:100%;transition:.2s}
+.btn-checkout:hover{opacity:.9;transform:translateY(-1px)}
+.btn-checkout:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.discount-badge{background:#7c3aed20;border:1px solid #7c3aed40;color:#a78bfa;padding:4px 10px;border-radius:6px;font-size:.85rem}
+.msg{padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:.9rem}
+.msg.success{background:#10b98120;border:1px solid #10b98140;color:#10b981}
+.msg.error{background:#ef444420;border:1px solid #ef444440;color:#ef4444}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/"><span>X</span>elloxx Shop</a>
+  <div class="nav-links">
+    <a href="/"><i class="fas fa-home"></i></a>
+    <a href="/orders"><i class="fas fa-box"></i> Đơn hàng</a>
+    <a href="/notifications" id="notif-link"><i class="fas fa-bell"></i> <span id="notif-badge" style="display:none;background:#7c3aed;color:#fff;padding:2px 7px;border-radius:10px;font-size:.75rem"></span></a>
+    <a href="/topup" class="btn-primary"><i class="fas fa-wallet"></i> Nạp xu</a>
+  </div>
+</nav>
+<div class="container">
+  <h1>🛒 Giỏ <span>hàng</span></h1>
+  <div id="msg"></div>
+  <div id="cart-content">
+    <div class="cart-empty"><i class="fas fa-shopping-cart"></i><p>Giỏ hàng trống</p><a href="/" style="color:#7c3aed">← Tiếp tục mua sắm</a></div>
+  </div>
+</div>
+<script>
+let cartData=[], discount=0, couponCode='';
+
+async function loadCart(){
+  const r=await fetch('/api/cart');
+  const d=await r.json();
+  if(!d.ok) return;
+  cartData=d.cart;
+  renderCart();
+  loadNotifs();
+}
+
+function renderCart(){
+  const el=document.getElementById('cart-content');
+  if(!cartData.length){
+    el.innerHTML=`<div class="cart-empty"><i class="fas fa-shopping-cart"></i><p>Giỏ hàng trống</p><a href="/" style="color:#7c3aed">← Tiếp tục mua sắm</a></div>`;
+    return;
+  }
+  let total=0;
+  let itemsHtml=cartData.map(item=>{
+    const p=item.product;
+    const price=p.sale_price>0?p.sale_price:p.price;
+    total+=price;
+    return `<div class="cart-item">
+      <img src="${p.image||''}" onerror="this.src=''" style="background:#1e1e2e;display:flex;align-items:center;justify-content:center">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-cat">${p.category}</div>
+        <div class="cart-item-price">${price.toLocaleString()}đ${p.sale_price>0?`<span class="original-price">${p.price.toLocaleString()}đ</span>`:''}</div>
+      </div>
+      <button class="btn-remove" onclick="removeItem('${p.id}')"><i class="fas fa-trash"></i></button>
+    </div>`;
+  }).join('');
+
+  const finalPrice=Math.max(0,total-discount);
+  el.innerHTML=`${itemsHtml}
+  <div class="cart-summary">
+    <div class="coupon-row">
+      <input id="coupon-input" placeholder="Nhập mã giảm giá..." value="${couponCode}">
+      <button class="btn-coupon" onclick="applyCoupon()"><i class="fas fa-tag"></i> Áp dụng</button>
+    </div>
+    <div id="coupon-msg"></div>
+    <div class="summary-row"><span>Tổng ${cartData.length} sản phẩm</span><span>${total.toLocaleString()}đ</span></div>
+    ${discount>0?`<div class="summary-row"><span>Giảm giá <span class="discount-badge">${couponCode}</span></span><span style="color:#10b981">-${discount.toLocaleString()}đ</span></div>`:''}
+    <div class="summary-row total"><span>Thanh toán</span><span style="color:#a78bfa">${finalPrice.toLocaleString()}đ</span></div>
+    <button class="btn-checkout" onclick="checkoutCart()"><i class="fas fa-credit-card"></i> Thanh toán tất cả</button>
+  </div>`;
+}
+
+async function removeItem(pid){
+  await fetch('/api/cart/remove',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:pid})});
+  cartData=cartData.filter(i=>i.product.id!==pid);
+  discount=0; couponCode='';
+  renderCart();
+}
+
+async function applyCoupon(){
+  const code=document.getElementById('coupon-input').value.trim();
+  if(!code) return;
+  const total=cartData.reduce((s,i)=>s+(i.product.sale_price>0?i.product.sale_price:i.product.price),0);
+  const r=await fetch('/api/coupon/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,price:total})});
+  const d=await r.json();
+  const msgEl=document.getElementById('coupon-msg');
+  if(d.ok){discount=d.discount;couponCode=code;msgEl.innerHTML=`<div class="msg success"><i class="fas fa-check"></i> ${d.description}</div>`;renderCart();}
+  else{msgEl.innerHTML=`<div class="msg error"><i class="fas fa-times"></i> ${d.msg}</div>`;}
+}
+
+async function checkoutCart(){
+  const btn=document.querySelector('.btn-checkout');
+  btn.disabled=true;btn.textContent='Đang xử lý...';
+  const r=await fetch('/api/checkout/cart',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({coupon:couponCode})});
+  const d=await r.json();
+  btn.disabled=false;
+  const msgEl=document.getElementById('msg');
+  if(d.ok){
+    msgEl.innerHTML=`<div class="msg success"><i class="fas fa-check-circle"></i> Thanh toán thành công ${d.orders.length} sản phẩm! <a href="/orders" style="color:#10b981">Xem đơn hàng →</a></div>`;
+    cartData=[]; discount=0; couponCode=''; renderCart();
+  } else {
+    btn.textContent='Thanh toán tất cả';
+    msgEl.innerHTML=`<div class="msg error"><i class="fas fa-times-circle"></i> ${d.msg||'Lỗi thanh toán'}</div>`;
+    if(d.msg&&d.msg.includes('đăng nhập')) setTimeout(()=>location.href='/login',1500);
+  }
+}
+
+async function loadNotifs(){
+  const r=await fetch('/api/notifications/unread-count');
+  const d=await r.json();
+  if(d.ok&&d.count>0){const b=document.getElementById('notif-badge');b.style.display='inline';b.textContent=d.count;}
+}
+
+loadCart();
+</script>
+</body></html>

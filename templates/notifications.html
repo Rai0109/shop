@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Thông báo - Xelloxx Shop</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh}
+.navbar{background:#13131a;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e1e2e;position:sticky;top:0;z-index:100}
+.navbar a{color:#e0e0e0;text-decoration:none;font-weight:600;font-size:1.2rem}
+.navbar a span{color:#7c3aed}
+.nav-links{display:flex;gap:16px;align-items:center}
+.nav-links a{color:#a0a0b0;text-decoration:none;padding:8px 12px;border-radius:8px;transition:.2s}
+.nav-links a:hover{background:#1e1e2e;color:#e0e0e0}
+.btn-primary{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff!important;padding:8px 18px;border-radius:8px}
+.container{max-width:800px;margin:0 auto;padding:32px 16px}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+h1{font-size:1.8rem}
+h1 span{color:#7c3aed}
+.btn-mark-all{background:#1e1e2e;border:none;color:#a78bfa;padding:8px 16px;border-radius:8px;cursor:pointer;transition:.2s;font-size:.9rem}
+.btn-mark-all:hover{background:#7c3aed;color:#fff}
+.notif-item{background:#13131a;border:1px solid #1e1e2e;border-radius:12px;padding:20px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;transition:.2s;position:relative}
+.notif-item.unread{border-color:#7c3aed40;background:#13131a}
+.notif-item.unread::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:60%;background:#7c3aed;border-radius:0 4px 4px 0}
+.notif-item:hover{border-color:#7c3aed50}
+.notif-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.notif-icon.success{background:#10b98120}
+.notif-icon.error{background:#ef444420}
+.notif-icon.warning{background:#f5970020}
+.notif-icon.info{background:#7c3aed20}
+.notif-body{flex:1}
+.notif-title{font-weight:600;margin-bottom:4px}
+.notif-text{color:#a0a0b0;font-size:.9rem;line-height:1.5}
+.notif-time{font-size:.8rem;color:#555;margin-top:6px}
+.unread-dot{width:8px;height:8px;background:#7c3aed;border-radius:50%;flex-shrink:0;margin-top:6px}
+.empty{text-align:center;padding:80px 20px}
+.empty i{font-size:3rem;color:#333;margin-bottom:16px;display:block}
+.empty p{color:#555}
+.filter-tabs{display:flex;gap:8px;margin-bottom:20px}
+.tab{background:#1e1e2e;border:none;color:#a0a0b0;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.9rem;transition:.2s}
+.tab.active,.tab:hover{background:#7c3aed;color:#fff}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/"><span>X</span>elloxx Shop</a>
+  <div class="nav-links">
+    <a href="/">Trang chủ</a>
+    <a href="/orders">Đơn hàng</a>
+    <a href="/topup" class="btn-primary"><i class="fas fa-wallet"></i> Nạp xu</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="page-header">
+    <h1>🔔 <span>Thông báo</span></h1>
+    <button class="btn-mark-all" onclick="markAllRead()"><i class="fas fa-check-double"></i> Đánh dấu đã đọc</button>
+  </div>
+  <div class="filter-tabs">
+    <button class="tab active" onclick="filterNotifs('all',this)">Tất cả</button>
+    <button class="tab" onclick="filterNotifs('unread',this)">Chưa đọc</button>
+    <button class="tab" onclick="filterNotifs('success',this)">Thành công</button>
+    <button class="tab" onclick="filterNotifs('info',this)">Thông tin</button>
+  </div>
+  <div id="notifs-list"></div>
+</div>
+<script>
+let allNotifs=[], currentFilter='all';
+const icons={success:'✅',error:'❌',warning:'⚠️',info:'📢'};
+
+async function loadNotifs(){
+  const r=await fetch('/api/notifications');
+  const d=await r.json();
+  if(!d.ok){location.href='/login';return;}
+  allNotifs=d.notifications;
+  renderNotifs();
+}
+
+function filterNotifs(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderNotifs();
+}
+
+function renderNotifs(){
+  let notifs=allNotifs;
+  if(currentFilter==='unread') notifs=allNotifs.filter(n=>!n.read);
+  else if(currentFilter!=='all') notifs=allNotifs.filter(n=>n.type===currentFilter);
+  const el=document.getElementById('notifs-list');
+  if(!notifs.length){
+    el.innerHTML=`<div class="empty"><i class="fas fa-bell-slash"></i><p>Không có thông báo</p></div>`;
+    return;
+  }
+  el.innerHTML=notifs.map(n=>`
+    <div class="notif-item ${n.read?'':'unread'}" onclick="markRead('${n.id}',this)">
+      <div class="notif-icon ${n.type}">${icons[n.type]||'📢'}</div>
+      <div class="notif-body">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-text">${n.body}</div>
+        <div class="notif-time"><i class="fas fa-clock"></i> ${n.created_at}</div>
+      </div>
+      ${!n.read?'<div class="unread-dot"></div>':''}
+    </div>`).join('');
+}
+
+async function markRead(id,el){
+  if(el.classList.contains('unread')){
+    el.classList.remove('unread');
+    el.querySelector('.unread-dot')?.remove();
+    await fetch('/api/notifications/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    const n=allNotifs.find(x=>x.id===id);
+    if(n) n.read=true;
+  }
+}
+
+async function markAllRead(){
+  await fetch('/api/notifications/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:null})});
+  allNotifs.forEach(n=>n.read=true);
+  renderNotifs();
+}
+
+loadNotifs();
+</script>
+</body></html>

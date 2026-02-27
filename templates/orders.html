@@ -82,8 +82,28 @@ main{padding:5.5rem 1.5rem 3rem;max-width:860px;margin:0 auto;}
 .badge.fail{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);}
 
 /* DOWNLOAD BTN */
-.btn-dl{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;background:rgba(255,106,0,.15);border:1px solid rgba(255,106,0,.35);border-radius:7px;color:var(--accent);font-size:.75rem;font-weight:700;text-decoration:none;transition:.2s;margin-top:.3rem;}
+.btn-dl{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;background:rgba(255,106,0,.15);border:1px solid rgba(255,106,0,.35);border-radius:7px;color:var(--accent);font-size:.75rem;font-weight:700;text-decoration:none;transition:.2s;margin-top:.3rem;cursor:pointer;font-family:'Syne',sans-serif;}
 .btn-dl:hover{background:rgba(255,106,0,.28);}
+.btn-invoice{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:7px;color:#10b981;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.2s;margin-top:.3rem;}
+.btn-invoice:hover{background:rgba(16,185,129,.2);}
+.btn-review{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:7px;color:#f59e0b;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.2s;margin-top:.3rem;}
+.btn-review:hover{background:rgba(245,158,11,.2);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal{background:#111827;border:1px solid rgba(255,106,0,.2);border-radius:16px;padding:28px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;}
+.modal h3{margin-bottom:16px;font-size:1.2rem;}
+.modal-close{float:right;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;}
+.stars{display:flex;gap:6px;margin-bottom:16px;}
+.star{font-size:2rem;cursor:pointer;transition:.1s;opacity:.4;} 
+.star.active,.star:hover{opacity:1;}
+.modal textarea{width:100%;background:#0f1623;border:1px solid rgba(255,150,0,.2);color:#f0f0f0;padding:12px;border-radius:8px;font-size:.9rem;font-family:'Syne',sans-serif;resize:vertical;min-height:100px;}
+.modal textarea:focus{outline:none;border-color:var(--accent);}
+.btn-submit-review{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.95rem;font-weight:700;font-family:'Syne',sans-serif;margin-top:12px;width:100%;}
+.invoice-box{font-family:'Space Mono',monospace;font-size:.85rem;line-height:1.8;}
+.invoice-box .inv-header{border-bottom:1px solid rgba(255,150,0,.2);padding-bottom:12px;margin-bottom:16px;}
+.invoice-box .inv-row{display:flex;justify-content:space-between;padding:4px 0;}
+.invoice-box .inv-row.total{border-top:1px solid rgba(255,150,0,.2);margin-top:8px;padding-top:8px;font-weight:700;color:var(--accent);}
+.btn-print{background:rgba(255,106,0,.15);border:1px solid rgba(255,106,0,.35);color:var(--accent);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.85rem;font-family:'Syne',sans-serif;margin-top:12px;}
 
 /* COUPON TAG */
 .coupon-tag{display:inline-flex;align-items:center;gap:.25rem;padding:.15rem .5rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:6px;font-size:.7rem;color:var(--green);}
@@ -261,7 +281,7 @@ function renderList(){
       fail:    `<span class="badge fail">✕ Từ chối</span>`
     };
     const dlBtn = o.file_url
-      ? `<a class="btn-dl" href="${o.file_url}" target="_blank">⬇ Tải file</a>`
+      ? `<button class="btn-dl" onclick="secureDownload('${o.id}')">⬇ Tải file</button>`
       : '';
     const coupon = o.coupon
       ? `<span class="coupon-tag">🏷 ${o.coupon} -${fmt(o.discount||0)}đ</span>` : '';
@@ -302,13 +322,85 @@ function openModal(id){
     <div class="detail-row"><span class="detail-label">Số tiền</span><span class="detail-value accent mono">${o.amount===0?'FREE':fmt(o.amount)+'đ'}</span></div>
     ${o.discount>0?`<div class="detail-row"><span class="detail-label">Giảm giá (${o.coupon})</span><span class="detail-value green">-${fmt(o.discount)}đ</span></div>`:''}
     <div class="detail-row"><span class="detail-label">Trạng thái</span><span class="detail-value">${badgeMap[st]}</span></div>
-    ${o.file_url?`<div class="detail-row"><span class="detail-label">File</span><span class="detail-value"><a class="btn-dl" href="${o.file_url}" target="_blank">⬇ Tải file ngay</a></span></div>`:''}
+    ${o.file_url?`<div class="detail-row"><span class="detail-label">File</span><span class="detail-value"><button class="btn-dl" onclick="secureDownload('${o.id}')">⬇ Tải file ngay</button></span></div>`:''}
+    <div class="detail-row"><span class="detail-label">Hóa đơn</span><span class="detail-value"><button class="btn-invoice" onclick="showInvoice('${o.id}')">🧾 Xem hóa đơn</button></span></div>
+    <div class="detail-row"><span class="detail-label">Đánh giá</span><span class="detail-value"><button class="btn-review" onclick="openReview('${o.product_id}','${o.product_name}')">⭐ Viết đánh giá</button></span></div>
   `;
   document.getElementById('modalOverlay').classList.add('open');
 }
 
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// Secure download
+async function secureDownload(orderId){
+  const r=await fetch(`/api/download/${orderId}`);
+  const d=await r.json();
+  if(d.ok) window.open(d.download_url,'_blank');
+  else alert(d.msg||'Lỗi tải file');
+}
+
+// Invoice modal
+async function showInvoice(orderId){
+  const r=await fetch(`/api/invoice/${orderId}`);
+  const d=await r.json();
+  if(!d.ok){alert(d.msg);return;}
+  const inv=d.invoice;
+  const o=inv.order;
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay active';
+  overlay.innerHTML=`<div class="modal">
+    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+    <h3>🧾 Hóa đơn mua hàng</h3>
+    <div class="invoice-box">
+      <div class="inv-header">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--accent)">${inv.shop_name}</div>
+        ${inv.shop_phone?`<div>${inv.shop_phone}</div>`:''}
+        <div style="color:#888;margin-top:4px">Số HĐ: ${inv.invoice_no}</div>
+        <div style="color:#888">Ngày: ${inv.issued_at}</div>
+      </div>
+      <div class="inv-row"><span>Khách hàng:</span><span>${inv.user.username}</span></div>
+      <div class="inv-row"><span>Email:</span><span>${inv.user.email}</span></div>
+      <div style="margin:12px 0;border-top:1px solid rgba(255,150,0,.15)"></div>
+      <div class="inv-row"><span>Sản phẩm:</span><span>${o.product_name}</span></div>
+      <div class="inv-row"><span>Giá gốc:</span><span>${(o.original_price||o.amount).toLocaleString()}đ</span></div>
+      ${o.discount>0?`<div class="inv-row"><span>Giảm giá (${o.coupon}):</span><span style="color:#10b981">-${o.discount.toLocaleString()}đ</span></div>`:''}
+      <div class="inv-row total"><span>TỔNG THANH TOÁN:</span><span>${o.amount.toLocaleString()}đ</span></div>
+    </div>
+    <button class="btn-print" onclick="window.print()">🖨️ In hóa đơn</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+}
+
+// Review modal
+let reviewProductId='';
+function openReview(pid,name){
+  reviewProductId=pid; let selRating=5;
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay active';
+  overlay.innerHTML=`<div class="modal">
+    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+    <h3>⭐ Đánh giá: ${name}</h3>
+    <div class="stars" id="stars-row">
+      ${[1,2,3,4,5].map(i=>`<span class="star ${i<=5?'active':''}" data-v="${i}" onclick="setRating(${i})">★</span>`).join('')}
+    </div>
+    <textarea id="review-content" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+    <div id="review-msg" style="margin-top:8px;font-size:.85rem;color:#ef4444"></div>
+    <button class="btn-submit-review" onclick="submitReview()">Gửi đánh giá</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  window.setRating=function(v){selRating=v;document.querySelectorAll('.star').forEach(s=>{s.classList.toggle('active',parseInt(s.dataset.v)<=v);});};
+  window.submitReview=async function(){
+    const content=document.getElementById('review-content').value.trim();
+    const r=await fetch('/api/reviews',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({product_id:reviewProductId,rating:selRating,content})});
+    const d=await r.json();
+    if(d.ok){overlay.remove();alert('✅ Cảm ơn đánh giá của bạn!');}
+    else document.getElementById('review-msg').textContent=d.msg;
+  };
 }
 
 init();

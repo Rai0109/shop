@@ -10,10 +10,12 @@
       "type": "sell",
       "image": "https://photo-stal-26.zdn.vn/gr/jxl/ca4698e4afa563fb3ab4/283198749228259232.jxl",
       "file_url": "https://www.mediafire.com/file/eonljt75sognwew/main.py/file",
-      "views": 2,
+      "views": 5,
       "created_at": "26/02/2026",
       "featured": true,
-      "stock": -1
+      "stock": -1,
+      "rating_avg": 0,
+      "rating_count": 0
     }
   ],
   "users": [
@@ -30,8 +32,9 @@
       "username": "xellox",
       "email": "xellox",
       "password": "de16c5a461b055b7bf3ee16cedb012aa562ee6dc79b62ad496e4f07cbbd0e43f",
-      "balance": 0,
-      "created_at": "26/02/2026"
+      "balance": 990000,
+      "created_at": "26/02/2026",
+      "cart": []
     }
   ],
   "orders": [
@@ -45,6 +48,19 @@
       "discount": 0,
       "file_url": "https://www.mediafire.com/file/eonljt75sognwew/main.py/file",
       "created_at": "26/02/2026 18:06"
+    },
+    {
+      "id": "9cf1d2c0-c6ae-425c-a55c-ca289c422781",
+      "user": "xellox",
+      "product_id": "2f5b7363-17f7-4c0a-8518-3a8128d2b80a",
+      "product_name": "Quản lý nhóm zalo",
+      "amount": 10000,
+      "original_price": 10000,
+      "coupon": "",
+      "discount": 0,
+      "file_url": "https://www.mediafire.com/file/eonljt75sognwew/main.py/file",
+      "status": "completed",
+      "created_at": "27/02/2026 21:22"
     }
   ],
   "categories": [
@@ -62,15 +78,19 @@
     }
   ],
   "mb_settings": {
-    "username": "",
-    "account_number": "",
-    "account_holder": "",
+    "username": "0967427517",
+    "account_number": "0967427517",
+    "account_holder": "HO NHAT  TRUONG",
     "bank_name": "MB Bank",
-    "enabled": false,
-    "password": ""
+    "enabled": true,
+    "password": "11009922..ntNT@@"
   },
   "processed_txids": [
+    "FT26058279045798",
+    "FT26058063284618",
+    "FT26058626983330",
     "FT26057281000977",
+    "FT26058660822069",
     "FT26057256047912",
     "FT26057032121109"
   ],
@@ -87,6 +107,36 @@
       "xu_added": 10000,
       "completed_at": "26/02/2026 18:05:40",
       "tx_ref": "FT26057256047912"
+    },
+    {
+      "id": "4c01df60-3fba-400b-a4cf-f449d7888b3e",
+      "username": "xellox",
+      "amount": 500000,
+      "code": "NAPXELLOX8E8222",
+      "status": "pending",
+      "created_at": "27/02/2026 21:24:49",
+      "expires_at": "27/02/2026 21:54:49"
     }
-  ]
+  ],
+  "reviews": [],
+  "notifications": [
+    {
+      "id": "de24a0da-76b5-4bc0-aa5f-1af06b6baeae",
+      "username": "xellox",
+      "title": "🛍️ Mua hàng thành công",
+      "body": "Đã mua 'Quản lý nhóm zalo' với giá 10,000 xu.",
+      "type": "success",
+      "read": false,
+      "created_at": "27/02/2026 21:22:40"
+    }
+  ],
+  "referral_rewards": [],
+  "coupons": [],
+  "settings": {
+    "referral_reward": 10000,
+    "referral_topup_bonus_pct": 5,
+    "invoice_shop_name": "Xelloxx Shop",
+    "invoice_address": "",
+    "invoice_phone": ""
+  }
 }

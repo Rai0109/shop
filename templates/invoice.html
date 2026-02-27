@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Hoá Đơn {{ invoice.invoice_number }}{% endblock %}
+{% block head %}
+<style>
+.invoice-wrapper{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;max-width:660px;margin:0 auto}
+.inv-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.inv-logo{font-size:1.6rem;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.inv-number{font-size:1.1rem;font-weight:800;font-family:'Space Mono',monospace;color:var(--text)}
+.inv-label{font-size:.7rem;color:var(--muted);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:1px}
+.inv-meta{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
+.meta-group h4{font-size:.72rem;color:var(--muted);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem}
+.meta-group p{font-size:.88rem;line-height:1.6}
+.inv-table{width:100%;border-collapse:collapse;margin-bottom:1.5rem}
+.inv-table th{text-align:left;font-size:.72rem;color:var(--muted);font-family:'Space Mono',monospace;text-transform:uppercase;padding:.6rem;border-bottom:1px solid var(--border)}
+.inv-table td{padding:.7rem .6rem;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.inv-table tr:last-child td{border-bottom:none}
+.inv-totals{margin-left:auto;width:280px}
+.inv-total-row{display:flex;justify-content:space-between;padding:.4rem 0;font-size:.85rem}
+.inv-total-final{display:flex;justify-content:space-between;padding:.7rem 0;border-top:2px solid var(--accent);margin-top:.3rem;font-weight:800;font-size:1rem}
+.inv-footer{text-align:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.78rem;color:var(--muted)}
+.paid-stamp{display:inline-block;border:3px solid var(--green);color:var(--green);border-radius:8px;padding:.3rem 1rem;font-size:1.3rem;font-weight:800;font-family:'Space Mono',monospace;transform:rotate(-5deg);opacity:.7}
+@media print{
+  nav,.no-print{display:none!important}
+  body{background:#fff;color:#000}
+  .invoice-wrapper{border:none;background:#fff;padding:1rem}
+  .inv-logo{color:#ff6a00!important;-webkit-text-fill-color:#ff6a00!important}
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="no-print" style="display:flex;gap:.7rem;margin-bottom:1.5rem;justify-content:flex-end">
+    <button class="btn btn-outline" onclick="window.print()">🖨️ In / PDF</button>
+    <a href="/orders" class="btn btn-outline">← Về đơn hàng</a>
+  </div>
+  <div class="invoice-wrapper">
+    <div class="inv-header">
+      <div>
+        <div class="inv-logo">Xelloxx Shop</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:.3rem">xelloxx.shop • support@xelloxx.shop</div>
+      </div>
+      <div style="text-align:right">
+        <div class="inv-label">Hoá Đơn</div>
+        <div class="inv-number">{{ invoice.invoice_number }}</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:.3rem;font-family:'Space Mono',monospace">{{ invoice.issued_at[:10] }}</div>
+        <div class="paid-stamp" style="margin-top:.5rem;font-size:.85rem">PAID</div>
+      </div>
+    </div>
+
+    <div class="inv-meta">
+      <div class="meta-group">
+        <h4>Khách hàng</h4>
+        <p><strong>{{ user.username }}</strong></p>
+        <p style="color:var(--muted)">{{ user.email }}</p>
+      </div>
+      <div class="meta-group">
+        <h4>Chi tiết đơn hàng</h4>
+        <p>Mã đơn: <strong>#{{ order.id }}</strong></p>
+        <p>Ngày: <strong>{{ order.created_at[:10] }}</strong></p>
+        <p>Trạng thái: <strong style="color:var(--green)">Đã thanh toán</strong></p>
+      </div>
+    </div>
+
+    <table class="inv-table">
+      <thead>
+        <tr><th>Sản phẩm</th><th>Danh mục</th><th style="text-align:center">SL</th><th style="text-align:right">Đơn giá</th><th style="text-align:right">Thành tiền</th></tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.name }}</td>
+          <td style="color:var(--muted);font-size:.8rem">{{ item.category }}</td>
+          <td style="text-align:center;font-family:'Space Mono',monospace">{{ item.quantity }}</td>
+          <td style="text-align:right;font-family:'Space Mono',monospace">{{ '{:,}'.format(item.price) }} xu</td>
+          <td style="text-align:right;font-family:'Space Mono',monospace;color:var(--accent2)">{{ '{:,}'.format(item.price * item.quantity) }} xu</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="inv-totals">
+      <div class="inv-total-row">
+        <span style="color:var(--muted)">Tạm tính</span>
+        <span>{{ '{:,}'.format(order.total_price) }} xu</span>
+      </div>
+      {% if order.discount_amount %}
+      <div class="inv-total-row">
+        <span style="color:var(--green)">Giảm giá</span>
+        <span style="color:var(--green)">-{{ '{:,}'.format(order.discount_amount) }} xu</span>
+      </div>
+      {% endif %}
+      <div class="inv-total-final">
+        <span>Tổng cộng</span>
+        <span style="color:var(--accent2)">{{ '{:,}'.format(order.final_price) }} xu</span>
+      </div>
+    </div>
+
+    <div class="inv-footer">
+      <p>Cảm ơn bạn đã mua sắm tại Xelloxx Shop! 🙏</p>
+      <p style="margin-top:.3rem">Hỗ trợ: support@xelloxx.shop • Telegram: @xelloxx</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

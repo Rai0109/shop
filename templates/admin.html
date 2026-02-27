@@ -136,6 +136,10 @@ tr:hover td{background:rgba(255,106,0,.03)}
     <a class="nav-item" data-page="orders" onclick="showPage('orders',this)"><span class="icon">🛒</span> Đơn hàng</a>
     <a class="nav-item" data-page="users" onclick="showPage('users',this)"><span class="icon">👥</span> Người dùng</a>
     <a class="nav-item" data-page="categories" onclick="showPage('categories',this)"><span class="icon">🏷️</span> Danh mục</a>
+    <a class="nav-item" data-page="coupons" onclick="showPage('coupons',this)"><span class="icon">🎟️</span> Mã giảm giá</a>
+    <a class="nav-item" data-page="reviews" onclick="showPage('reviews',this)"><span class="icon">⭐</span> Đánh giá</a>
+    <a class="nav-item" data-page="notify" onclick="showPage('notify',this)"><span class="icon">📢</span> Thông báo</a>
+    <a class="nav-item" data-page="referrals" onclick="showPage('referrals',this)"><span class="icon">🎁</span> Giới thiệu</a>
     <a class="nav-item" data-page="mbbank" onclick="showPage('mbbank',this)"><span class="icon">🏦</span> MB Bank</a>
     <a class="nav-item" href="/" target="_blank"><span class="icon">🌐</span> Xem web</a>
   </nav>
@@ -214,6 +218,61 @@ tr:hover td{background:rgba(255,106,0,.03)}
       </div>
     </div>
 
+
+
+    <!-- REVIEWS -->
+    <div class="page" id="page-reviews">
+      <div class="table-wrap">
+        <div class="table-header"><h3>⭐ Quản lý đánh giá</h3><button class="btn-sm" onclick="loadReviews()">🔄 Tải lại</button></div>
+        <div id="reviews-table-body" style="padding:.5rem"></div>
+      </div>
+    </div>
+
+    <!-- NOTIFY -->
+    <div class="page" id="page-notify">
+      <div class="table-wrap" style="max-width:620px">
+        <div class="table-header"><h3>📢 Gửi thông báo</h3></div>
+        <div style="padding:1.2rem;display:flex;flex-direction:column;gap:1rem">
+          <div class="form-row"><label>Người nhận</label>
+            <select class="form-input" id="notif-target"><option value="all">📣 Tất cả người dùng</option></select></div>
+          <div class="form-row"><label>Loại</label>
+            <select class="form-input" id="notif-type">
+              <option value="info">📢 Thông tin</option>
+              <option value="success">✅ Thành công</option>
+              <option value="warning">⚠️ Cảnh báo</option>
+              <option value="error">❌ Lỗi</option>
+            </select></div>
+          <div class="form-row"><label>Tiêu đề</label><input class="form-input" id="notif-title" placeholder="Tiêu đề thông báo..."></div>
+          <div class="form-row"><label>Nội dung</label><textarea class="form-input" id="notif-body" rows="4" style="resize:vertical" placeholder="Nội dung thông báo..."></textarea></div>
+          <button class="btn-sm" onclick="sendNotification()" style="align-self:flex-start;padding:.6rem 1.2rem">📤 Gửi thông báo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFERRALS -->
+    <div class="page" id="page-referrals">
+      <div class="table-wrap">
+        <div class="table-header"><h3>🎁 Lịch sử giới thiệu</h3>
+          <button class="btn-sm" onclick="loadReferrals()">🔄 Tải lại</button></div>
+        <div id="referrals-table-body" style="padding:.5rem"></div>
+      </div>
+      <div class="table-wrap" style="max-width:420px;margin-top:1rem">
+        <div class="table-header"><h3>⚙️ Cài đặt giới thiệu</h3></div>
+        <div style="padding:1.2rem;display:flex;flex-direction:column;gap:1rem">
+          <div class="form-row"><label>Xu thưởng khi đăng ký</label>
+            <input class="form-input" type="number" id="ref-reward" placeholder="10000"></div>
+          <div class="form-row"><label>% bonus khi nạp tiền</label>
+            <input class="form-input" type="number" id="ref-pct" placeholder="5" min="0" max="50"></div>
+          <div class="form-row"><label>Tên shop (hóa đơn)</label>
+            <input class="form-input" id="inv-shop-name" placeholder="Xelloxx Shop"></div>
+          <div class="form-row"><label>Địa chỉ shop</label>
+            <input class="form-input" id="inv-address" placeholder="Địa chỉ..."></div>
+          <div class="form-row"><label>SĐT shop</label>
+            <input class="form-input" id="inv-phone" placeholder="0xxx..."></div>
+          <button class="btn-sm" onclick="saveShopSettings()" style="align-self:flex-start;padding:.6rem 1.2rem">💾 Lưu cài đặt</button>
+        </div>
+      </div>
+    </div>
 
     <!-- MB BANK SETTINGS -->
     <div class="page" id="page-mbbank">
@@ -352,7 +411,7 @@ function showPage(name,el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   if(el)el.classList.add('active');
-  const titles={dashboard:'📊 Dashboard',products:'📦 Sản phẩm',orders:'🛒 Đơn hàng',users:'👥 Người dùng',categories:'🏷️ Danh mục',mbbank:'🏦 MB Bank'};
+  const titles={dashboard:'📊 Dashboard',products:'📦 Sản phẩm',orders:'🛒 Đơn hàng',users:'👥 Người dùng',categories:'🏷️ Danh mục',mbbank:'🏦 MB Bank',coupons:'🎟️ Mã giảm giá',reviews:'⭐ Đánh giá',notify:'📢 Thông báo',referrals:'🎁 Giới thiệu'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
   document.getElementById('topAction').style.display=name==='products'?'inline-block':'none';
   if(name==='dashboard')loadDashboard();
@@ -361,6 +420,9 @@ function showPage(name,el){
   if(name==='users')loadUsers();
   if(name==='categories')loadCatTable();
   if(name==='mbbank')loadMbSettings();
+  if(name==='reviews')loadReviews();
+  if(name==='referrals'){loadReferrals();loadShopSettings();}
+  if(name==='notify')loadNotifyUsers();
 }
 
 async function loadDashboard(){
@@ -598,6 +660,102 @@ async function testMbConnection(){
   }
 }
 
+
+// ===== REVIEWS =====
+async function loadReviews(){
+  const r=await fetch('/api/admin/reviews');
+  const reviews=await r.json();
+  const el=document.getElementById('reviews-table-body');
+  if(!reviews.length){el.innerHTML='<p style="padding:1rem;color:#666">Chưa có đánh giá nào</p>';return;}
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:.85rem">
+    <tr style="color:#666;border-bottom:1px solid rgba(255,150,0,.1)"><th style="padding:8px">Sản phẩm</th><th>User</th><th>Điểm</th><th>Nội dung</th><th>Trạng thái</th><th>Thao tác</th></tr>
+    ${reviews.map(r=>`<tr style="border-bottom:1px solid rgba(255,150,0,.07)">
+      <td style="padding:8px;color:#fbbf24">${r.product_id.slice(0,8)}...</td>
+      <td style="padding:8px">${r.username}</td>
+      <td style="padding:8px">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
+      <td style="padding:8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.content}</td>
+      <td style="padding:8px"><span style="padding:3px 8px;border-radius:4px;font-size:.75rem;background:${r.approved?'rgba(16,185,129,.2)':'rgba(245,158,11,.2)'};color:${r.approved?'#10b981':'#f59e0b'}">${r.approved?'✅ Hiện':'⏸ Ẩn'}</span></td>
+      <td style="padding:8px;display:flex;gap:6px">
+        ${!r.approved?`<button class="btn-sm" style="font-size:.75rem;padding:.25rem .6rem" onclick="approveReview('${r.id}')">✅ Duyệt</button>`:''}
+        <button class="btn-sm" style="font-size:.75rem;padding:.25rem .6rem;background:rgba(239,68,68,.15);color:#ef4444" onclick="deleteReview('${r.id}')">🗑</button>
+      </td>
+    </tr>`).join('')}</table>`;
+}
+
+async function approveReview(id){
+  const r=await fetch(`/api/admin/reviews/${id}/approve`,{method:'POST'});
+  const d=await r.json();
+  if(d.ok){showToast('Đã duyệt đánh giá');loadReviews();}
+}
+async function deleteReview(id){
+  if(!confirm('Xóa đánh giá này?'))return;
+  const r=await fetch(`/api/admin/reviews/${id}`,{method:'DELETE'});
+  const d=await r.json();
+  if(d.ok){showToast('Đã xóa');loadReviews();}
+}
+
+// ===== NOTIFICATIONS =====
+async function loadNotifyUsers(){
+  const r=await fetch('/api/admin/users');
+  const users=await r.json();
+  const sel=document.getElementById('notif-target');
+  sel.innerHTML='<option value="all">📣 Tất cả người dùng</option>'+
+    users.map(u=>`<option value="${u.username}">${u.username}</option>`).join('');
+}
+
+async function sendNotification(){
+  const target=document.getElementById('notif-target').value;
+  const type=document.getElementById('notif-type').value;
+  const title=document.getElementById('notif-title').value.trim();
+  const body=document.getElementById('notif-body').value.trim();
+  if(!title||!body){showToast('Cần nhập tiêu đề và nội dung','error');return;}
+  const r=await fetch('/api/admin/notify',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({target,type,title,body})});
+  const d=await r.json();
+  if(d.ok){showToast(`Đã gửi ${d.sent} thông báo`);document.getElementById('notif-title').value='';document.getElementById('notif-body').value='';}
+  else showToast(d.msg,'error');
+}
+
+// ===== REFERRALS =====
+async function loadReferrals(){
+  const r=await fetch('/api/admin/referrals');
+  const rewards=await r.json();
+  const el=document.getElementById('referrals-table-body');
+  if(!rewards.length){el.innerHTML='<p style="padding:1rem;color:#666">Chưa có lịch sử giới thiệu</p>';return;}
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:.85rem">
+    <tr style="color:#666;border-bottom:1px solid rgba(255,150,0,.1)"><th style="padding:8px">Người giới thiệu</th><th>Người được giới thiệu</th><th>Loại</th><th>Xu nhận</th><th>Thời gian</th></tr>
+    ${rewards.map(r=>`<tr style="border-bottom:1px solid rgba(255,150,0,.07)">
+      <td style="padding:8px;color:#fbbf24">${r.referrer}</td>
+      <td style="padding:8px">${r.referred}</td>
+      <td style="padding:8px"><span style="padding:3px 8px;border-radius:4px;font-size:.75rem;background:${r.type=='register_bonus'?'rgba(16,185,129,.2)':'rgba(124,58,237,.2)'};color:${r.type=='register_bonus'?'#10b981':'#a78bfa'}">${r.type=='register_bonus'?'Đăng ký':'Nạp tiền'}</span></td>
+      <td style="padding:8px;color:#10b981;font-weight:700">+${r.amount.toLocaleString()} xu</td>
+      <td style="padding:8px;color:#666">${r.created_at}</td>
+    </tr>`).join('')}</table>`;
+}
+
+async function loadShopSettings(){
+  const r=await fetch('/api/admin/settings');
+  const d=await r.json();
+  document.getElementById('ref-reward').value=d.referral_reward||10000;
+  document.getElementById('ref-pct').value=d.referral_topup_bonus_pct||5;
+  document.getElementById('inv-shop-name').value=d.invoice_shop_name||'';
+  document.getElementById('inv-address').value=d.invoice_address||'';
+  document.getElementById('inv-phone').value=d.invoice_phone||'';
+}
+
+async function saveShopSettings(){
+  const data={
+    referral_reward:parseInt(document.getElementById('ref-reward').value)||10000,
+    referral_topup_bonus_pct:parseInt(document.getElementById('ref-pct').value)||5,
+    invoice_shop_name:document.getElementById('inv-shop-name').value,
+    invoice_address:document.getElementById('inv-address').value,
+    invoice_phone:document.getElementById('inv-phone').value
+  };
+  const r=await fetch('/api/admin/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  const d=await r.json();
+  if(d.ok)showToast('Đã lưu cài đặt');
+  else showToast(d.msg,'error');
+}
 </script>
 </body>
 </html>

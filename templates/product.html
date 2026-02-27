@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} - Xelloxx Shop{% endblock %}
+{% block head %}
+<style>
+.product-detail{display:grid;grid-template-columns:1fr 1.5fr;gap:2rem;margin-bottom:2rem}
+@media(max-width:700px){.product-detail{grid-template-columns:1fr}}
+.product-img{background:linear-gradient(135deg,rgba(255,106,0,.1),rgba(255,149,0,.05));border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:6rem;padding:3rem;aspect-ratio:1;min-height:220px}
+.product-cat-badge{display:inline-block;background:rgba(255,106,0,.15);color:var(--accent);border:1px solid rgba(255,106,0,.3);border-radius:100px;padding:.2rem .8rem;font-size:.72rem;font-family:'Space Mono',monospace;margin-bottom:.7rem}
+.product-title{font-size:1.5rem;font-weight:800;margin-bottom:.5rem;line-height:1.3}
+.product-desc{color:var(--muted);font-size:.88rem;line-height:1.7;margin-bottom:1.2rem}
+.price-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;margin-bottom:1rem}
+.price-big{font-size:1.8rem;font-weight:800;font-family:'Space Mono',monospace;color:var(--accent2)}
+.price-label{font-size:.75rem;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:.2rem}
+.stock-info{font-size:.8rem;color:var(--muted);margin-top:.3rem;font-family:'Space Mono',monospace}
+.rating-summary{display:flex;align-items:center;gap:.8rem;margin-bottom.7rem}
+.rating-big{font-size:2rem;font-weight:800;font-family:'Space Mono',monospace;color:var(--accent2)}
+.stars-row{display:flex;gap:.2rem}
+.star-filled{color:#f59e0b}
+.star-empty{color:rgba(255,255,255,.2)}
+/* Reviews */
+.review-section{margin-top:2rem}
+.review-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+.review-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:.7rem}
+.review-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.review-user{font-size:.82rem;font-weight:700}
+.review-date{font-size:.72rem;color:var(--muted);font-family:'Space Mono',monospace}
+.review-comment{font-size:.85rem;color:var(--muted);line-height:1.6}
+.verified-badge{font-size:.65rem;color:var(--green);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:100px;padding:.1rem .5rem;font-family:'Space Mono',monospace}
+/* Star selector */
+.star-selector{display:flex;gap:.3rem;margin-bottom:.7rem}
+.star-selector .star{font-size:1.8rem;cursor:pointer;transition:.2s;color:rgba(255,255,255,.2)}
+.star-selector .star.active,.star-selector .star:hover{color:#f59e0b;transform:scale(1.2)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page" style="max-width:900px">
+  <div style="margin-bottom:1rem"><a href="/" style="color:var(--muted);text-decoration:none;font-size:.85rem">← Về trang chủ</a></div>
+
+  <div class="product-detail">
+    <div>
+      <div class="product-img">{{ product.image_url or '📦' }}</div>
+    </div>
+    <div>
+      <span class="product-cat-badge">{{ product.category }}</span>
+      <h1 class="product-title">{{ product.name }}</h1>
+      {% if product.review_count %}
+      <div class="rating-summary" style="margin-bottom:.8rem">
+        <span class="rating-big">{{ '%.1f'|format(product.avg_rating) }}</span>
+        <div>
+          <div class="stars-row">
+            {% for i in range(1,6) %}
+            <span class="{{ 'star-filled' if i <= product.avg_rating|int else 'star-empty' }}">★</span>
+            {% endfor %}
+          </div>
+          <div style="font-size:.75rem;color:var(--muted)">{{ product.review_count }} đánh giá</div>
+        </div>
+      </div>
+      {% endif %}
+      <p class="product-desc">{{ product.description or 'Sản phẩm chất lượng cao.' }}</p>
+      <div class="price-section">
+        <div class="price-label">GIÁ</div>
+        <div class="price-big">{{ '{:,}'.format(product.price) }} xu</div>
+        <div class="stock-info">
+          {% if product.stock == -1 %}✅ Còn hàng (không giới hạn)
+          {% elif product.stock > 0 %}✅ Còn {{ product.stock }} sản phẩm
+          {% else %}<span style="color:var(--red)">❌ Hết hàng</span>{% endif %}
+        </div>
+      </div>
+      {% if product.stock != 0 %}
+      <div style="display:flex;gap:.7rem;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="addCart({{ product.id }}, this)" style="flex:1;justify-content:center">🛒 Thêm vào giỏ hàng</button>
+        <button class="btn btn-outline" onclick="buyNow({{ product.id }})" style="flex:1;justify-content:center">⚡ Mua ngay</button>
+      </div>
+      {% else %}
+      <button class="btn" disabled style="width:100%;justify-content:center;opacity:.5">Hết hàng</button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="review-section">
+    <div class="review-header">
+      <h2 style="font-size:1.1rem;font-weight:800">⭐ Đánh giá sản phẩm</h2>
+    </div>
+
+    {% if user %}
+    {% if user_purchased %}
+    <div class="card" style="margin-bottom:1.2rem">
+      <h3 style="font-size:.9rem;margin-bottom:.8rem;font-weight:700">
+        {{ '✏️ Chỉnh sửa đánh giá' if user_review else '✍️ Viết đánh giá của bạn' }}
+      </h3>
+      <div class="star-selector" id="starSelector">
+        {% for i in range(1,6) %}
+        <span class="star {{ 'active' if user_review and i <= user_review.rating else '' }}" 
+              data-val="{{ i }}" onclick="selectStar({{ i }})">★</span>
+        {% endfor %}
+      </div>
+      <textarea id="reviewComment" placeholder="Chia sẻ trải nghiệm của bạn..." rows="3" style="margin-bottom:.7rem">{{ user_review.comment if user_review else '' }}</textarea>
+      <button class="btn btn-primary" onclick="submitReview({{ product.id }}, {{ 'true' if user_review else 'false' }})">
+        {{ '💾 Cập nhật' if user_review else '📤 Gửi đánh giá' }}
+      </button>
+    </div>
+    {% else %}
+    <div style="background:rgba(255,106,0,.05);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.2rem;font-size:.85rem;color:var(--muted)">
+      💡 Mua sản phẩm này để có thể viết đánh giá và giúp người khác
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if reviews %}
+    {% for r in reviews %}
+    <div class="review-card">
+      <div class="review-top">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span class="review-user">{{ r.username }}</span>
+          {% if r.is_verified %}<span class="verified-badge">✓ Đã mua</span>{% endif %}
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span style="color:#f59e0b;font-size:.85rem">{{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</span>
+          <span class="review-date">{{ r.created_at[:10] }}</span>
+        </div>
+      </div>
+      {% if r.comment %}<p class="review-comment">{{ r.comment }}</p>{% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div style="text-align:center;padding:2rem;color:var(--muted);font-size:.85rem">
+      Chưa có đánh giá nào. Hãy là người đầu tiên! 🌟
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let selectedRating = {{ user_review.rating if user_review else 0 }};
+function selectStar(val) {
+  selectedRating = val;
+  document.querySelectorAll('#starSelector .star').forEach((s,i) => {
+    s.classList.toggle('active', i < val);
+  });
+}
+async function submitReview(pid, isUpdate) {
+  if (!selectedRating) { showToast('Vui lòng chọn số sao','red'); return; }
+  const comment = document.getElementById('reviewComment').value.trim();
+  const url = isUpdate ? '/api/review/update' : '/api/review';
+  const r = await fetch(url, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({product_id:pid, rating:selectedRating, comment})
+  });
+  const d = await r.json();
+  if(d.ok) { showToast('✅ Đánh giá đã được lưu'); setTimeout(()=>location.reload(),1200); }
+  else showToast(d.msg,'red');
+}
+async function addCart(pid, btn) {
+  {% if not user %}showToast('Vui lòng đăng nhập','red');return;{% endif %}
+  btn.disabled=true;
+  const r = await fetch('/api/cart/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:pid,quantity:1})});
+  const d = await r.json();
+  btn.disabled=false;
+  if(d.ok) showToast('✓ Đã thêm vào giỏ hàng');
+  else showToast(d.msg,'red');
+}
+async function buyNow(pid) {
+  {% if not user %}showToast('Vui lòng đăng nhập','red');return;{% endif %}
+  const r = await fetch('/api/cart/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:pid,quantity:1})});
+  const d = await r.json();
+  if(d.ok) location.href='/checkout';
+  else showToast(d.msg,'red');
+}
+</script>
+{% endblock %}

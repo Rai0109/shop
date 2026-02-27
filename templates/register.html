@@ -37,18 +37,24 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
   <div class="form-row"><label>Email</label><input type="email" id="email" placeholder="email@gmail.com"></div>
   <div class="form-row"><label>Mật khẩu</label><input type="password" id="pass" placeholder="••••••••"></div>
   <div class="form-row"><label>Xác nhận mật khẩu</label><input type="password" id="pass2" placeholder="••••••••"></div>
+  <div class="form-row"><label>Mã giới thiệu (tùy chọn)</label><input type="text" id="ref-code" placeholder="Nhập mã nếu có..."></div>
   <button class="btn" onclick="register()">Đăng ký →</button>
   <div class="links" style="margin-top:1.2rem">Đã có tài khoản? <a href="/login">Đăng nhập</a></div>
 </div>
 <script>
+// Auto-fill referral code from URL ?ref=CODE
+const urlRef=new URLSearchParams(location.search).get('ref');
+if(urlRef) document.getElementById('ref-code').value=urlRef;
+
 async function register(){
   const u=document.getElementById('user').value;
   const e=document.getElementById('email').value;
   const p=document.getElementById('pass').value;
   const p2=document.getElementById('pass2').value;
+  const refCode=document.getElementById('ref-code').value.trim();
   const msg=document.getElementById('msg');
   if(p!==p2){msg.textContent='Mật khẩu không khớp';msg.className='msg err';msg.style.display='block';return;}
-  const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,email:e,password:p})});
+  const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,email:e,password:p,referral_code:refCode})});
   const d=await r.json();
   if(d.ok){msg.textContent='✅ Đăng ký thành công! Đang chuyển hướng...';msg.className='msg ok';msg.style.display='block';setTimeout(()=>window.location.href='/login',1500);}
   else{msg.textContent=d.msg;msg.className='msg err';msg.style.display='block';}
